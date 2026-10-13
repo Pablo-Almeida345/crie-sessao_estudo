@@ -1,121 +1,223 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const SessaoApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SessaoApp extends StatelessWidget {
+  const SessaoApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: TelaInicio(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class SessaoEstudo {
+  final String tema;
+  final int minutos;
+  final String observacao;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  const SessaoEstudo({
+    required this.tema,
+    required this.minutos,
+    required this.observacao,
+  });
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class TelaInicio extends StatefulWidget {
+  const TelaInicio({super.key});
 
-  void _incrementCounter() {
+  @override
+  State<TelaInicio> createState() => _TelaInicioState();
+}
+
+class _TelaInicioState extends State<TelaInicio> {
+  SessaoEstudo? _ultimaSessao;
+
+  String resumoSessao() {
+    final sessao = _ultimaSessao;
+    if (sessao == null) {
+      return 'Nenhuma sessão confirmada.';
+    }
+    final observacao = sessao.observacao.isEmpty
+        ? 'Sem observação'
+        : sessao.observacao;
+    return 'Tema: ${sessao.tema}\n'
+        'Duração: ${sessao.minutos} minutos\n'
+        'Observação: $observacao';
+  }
+
+
+  Future<void> abrirFormulario() async {
+    final resultado = await Navigator.push<SessaoEstudo>(
+      context,
+      MaterialPageRoute<SessaoEstudo>(
+        builder: (context) => const TelaFormulario(),
+      ),
+    );
+    if (!mounted || resultado == null) {
+      return;
+    }
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _ultimaSessao = resultado;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      appBar: AppBar(title: const Text('Minhas sessões')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.menu_book, size: 64, color: Colors.indigo),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(resumoSessao()),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: abrirFormulario,
+                child: const Text('Nova sessão'),
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    );
+  }
+}
+
+class TelaFormulario extends StatefulWidget {
+  const TelaFormulario({super.key});
+
+  @override
+  State<TelaFormulario> createState() => _TelaFormularioState();
+}
+
+class _TelaFormularioState extends State<TelaFormulario> {
+  final _formKey = GlobalKey<FormState>();
+  final _temaController = TextEditingController();
+  final _minutosController = TextEditingController();
+  final _observacaoController = TextEditingController();
+
+  @override
+  void dispose() {
+    _temaController.dispose();
+    _minutosController.dispose();
+    _observacaoController.dispose();
+    super.dispose();
+  }
+
+
+  void confirmar() {
+    final valido = _formKey.currentState?.validate() ?? false;
+    if (!valido) {
+      return;
+    }
+    final minutos = int.tryParse(_minutosController.text.trim());
+    if (minutos == null) {
+      return;
+    }
+    final sessao = SessaoEstudo(
+      tema: _temaController.text.trim(),
+      minutos: minutos,
+      observacao: _observacaoController.text.trim(),
+    );
+    Navigator.pop<SessaoEstudo>(context, sessao);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Nova sessão')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Planeje uma sessão de estudo.'),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _temaController,
+                  validator: (value) {
+                    final tema = (value ?? '').trim();
+                    if (tema.isEmpty) {
+                      return 'Informe o tema do estudo.';
+                    }
+                    if (tema.length < 3) {
+                      return 'Use pelo menos 3 caracteres no tema.';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Tema do estudo',
+                    hintText: 'Ex.: Revisar Form e validação',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _minutosController,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    final texto = (value ?? '').trim();
+                    if (texto.isEmpty) {
+                      return 'Informe a duração.';
+                    }
+                    final minutos = int.tryParse(texto);
+                    if (minutos == null) {
+                      return 'Digite um número inteiro de minutos.';
+                    }
+                    if (minutos < 1 || minutos > 240) {
+                      return 'Use uma duração de 1 a 240 minutos.';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Duração em minutos',
+                    hintText: 'De 1 a 240',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _observacaoController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Observação (opcional)',
+                    hintText: 'Ex.: Resolver os exemplos da aula',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: confirmar,
+                  child: const Text('Confirmar sessão'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
