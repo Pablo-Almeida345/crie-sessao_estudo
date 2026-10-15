@@ -60,6 +60,7 @@ class _TelaInicioState extends State<TelaInicio> {
   }
 
   Future<void> abrirFormulario({Map<String, Object>? sessao}) async {
+    // Correção: Adicionado o '?' para permitir que o retorno seja null quando o usuário cancelar
     final resultado = await Navigator.push<Map<String, Object>>(
       context,
       MaterialPageRoute<Map<String, Object>>(
@@ -71,7 +72,8 @@ class _TelaInicioState extends State<TelaInicio> {
     }
     if (sessao == null) {
       setState(() {
-        _sessoes.add(<String, Object>{'id': _proximoId,
+        _sessoes.add(<String, Object>{
+          'id': _proximoId,
           'tema': (resultado['tema'] as String),
           'minutos': (resultado['minutos'] as int),
           'observacao': (resultado['observacao'] as String),
@@ -105,51 +107,51 @@ class _TelaInicioState extends State<TelaInicio> {
               child: _sessoes.isEmpty
                   ? const Center(child: Text('Nenhuma sessão. Toque em Cadastrar para começar.'))
                   : ListView.builder(
-                itemCount: _sessoes.length,
-                itemBuilder: (context, index) {
-                  final sessao = _sessoes[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ListTile(
-                            leading: CircleAvatar(child: Text('${(sessao['id'] as int)}')),
-                            title: Text((sessao['tema'] as String)),
-                            subtitle: Text('${(sessao['minutos'] as int)} minutos\n'
-                                '${(sessao['observacao'] as String).isEmpty ? "Sem observação" : (sessao['observacao'] as String)}'),
+                      itemCount: _sessoes.length,
+                      itemBuilder: (context, index) {
+                        final sessao = _sessoes[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ListTile(
+                                  leading: CircleAvatar(child: Text('${(sessao['id'] as int)}')),
+                                  title: Text((sessao['tema'] as String)),
+                                  subtitle: Text('${(sessao['minutos'] as int)} minutos\n'
+                                      '${(sessao['observacao'] as String).isEmpty ? "Sem observação" : (sessao['observacao'] as String)}'),
+                                ),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 8,
+                                  alignment: WrapAlignment.end,
+                                  children: [
+                                    TextButton.icon(
+                                      onPressed: () => abrirFormulario(sessao: sessao),
+                                      icon: const Icon(Icons.edit_outlined),
+                                      label: const Text('Editar'),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: () => excluirSessao(sessao),
+                                      icon: const Icon(Icons.delete_outline),
+                                      label: const Text('Excluir'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 8,
-                            alignment: WrapAlignment.end,
-                            children: [
-                              TextButton.icon(
-                                onPressed: () => abrirFormulario(sessao: sessao),
-                                icon: const Icon(Icons.edit_outlined),
-                                label: const Text('Editar'),
-                              ),
-                              TextButton.icon(
-                                onPressed: () => excluirSessao(sessao),
-                                icon: const Icon(Icons.delete_outline),
-                                label: const Text('Excluir'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: abrirFormulario,
+        onPressed: () => abrirFormulario(),
         tooltip: 'Nova sessão',
         icon: const Icon(Icons.add),
         label: const Text('Cadastrar'),
@@ -192,7 +194,6 @@ class _TelaFormularioState extends State<TelaFormulario> {
     super.dispose();
   }
 
-
   void confirmar() {
     final valido = _formKey.currentState?.validate() ?? false;
     if (!valido) {
@@ -202,7 +203,8 @@ class _TelaFormularioState extends State<TelaFormulario> {
     if (minutos == null) {
       return;
     }
-    final sessao = <String, Object>{'id': widget.sessao?['id'] ?? 0,
+    final sessao = <String, Object>{
+      'id': widget.sessao?['id'] ?? 0,
       'tema': _temaController.text.trim(),
       'minutos': minutos,
       'observacao': _observacaoController.text.trim(),
