@@ -1,0 +1,14 @@
+CREATE TABLE sessoes (
+  id INTEGER PRIMARY KEY,
+  tema TEXT NOT NULL CHECK(length(trim(tema)) >= 3),
+  minutos INTEGER NOT NULL CHECK(minutos BETWEEN 1 AND 240),
+  observacao TEXT NOT NULL DEFAULT ''
+);
+
+INSERT INTO sessoes (tema, minutos, observacao)
+VALUES ('Dart', 30, 'Revisar listas');
+
+
+SELECT id, tema, minutos, observacao
+FROM sessoes
+ORDER BY id DESC;

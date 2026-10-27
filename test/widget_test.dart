@@ -11,20 +11,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sessao_estudo/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('SessaoApp smoke test', (WidgetTester tester) async {
+    // Constrói o app e dispara o frame (usando SessaoApp em vez de MyApp)
+    await tester.pumpWidget(const SessaoApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verifica se o título da AppBar está correto
+    expect(find.text('Minhas sessões'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verifica se a mensagem de lista vazia aparece inicialmente
+    expect(
+      find.text('Nenhuma sessão. Toque em Cadastrar para começar.'),
+      findsOneWidget,
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verifica se o botão de cadastrar está presente
+    expect(find.text('Cadastrar'), findsOneWidget);
   });
 }
